@@ -38,6 +38,9 @@ static void vec2fScalarProduct(vec2f* dest, vec2f* src, float scalar);
 /* get the normalised (unit vector) version of `src` and put the result in `dest` */
 static void vec2fNormalise(vec2f* dest, vec2f* src);
 
+/* clamp the magnitude of `src` to `max_magnitude` and store in `dest` */
+static void vec2fClampMagnitude(vec2f* dest, vec2f* src, float max_magnitude);
+
 /* return the angle from `fromVector` to `toVector` in radians*/
 static float vec2fAngleRadians(vec2f* fromVector, vec2f* toVector);
 
@@ -87,6 +90,15 @@ static void vec2fNormalise(vec2f* dest, vec2f* src)
 	float length = vec2fMagnitude(src);
 	dest->x = src->x / length;
 	dest->y = src->y / length;
+}
+
+static void vec2fClampMagnitude(vec2f* dest, vec2f* src, float max_magnitude)
+{
+    if(vec2fMagnitude(src) > max_magnitude)
+    {
+        vec2fNormalise(dest, src);
+        vec2fScalarProduct(dest, dest, max_magnitude);
+    }
 }
 
 static float vec2fAngleRadians(vec2f* fromVector, vec2f* toVector)

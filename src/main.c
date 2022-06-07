@@ -1,7 +1,9 @@
 #include "sdl_util.h"
 #include "anna-layer.h"
+#include "player.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_render.h>
 #include <SDL2/SDL_scancode.h>
 
 #define SCREENWIDTH 1600
@@ -9,9 +11,6 @@
 #define TITLETEXT "gamejam"
 
 #define TICK_INTERVAL 15
-
-typedef enum {THRUST_ACCELERATE, THRUST_BRAKE, THRUST_REVERSE} thrust_state;
-typedef enum {TURN_LEFT, TURN_RIGHT, TURN_NONE} turn_state;
 
 static u32 next_tick;
 
@@ -32,18 +31,15 @@ int main()
 			   (SDL_INIT_VIDEO | SDL_INIT_EVENTS | SDL_INIT_TIMER),
 			   TITLETEXT, &window, &renderer);
 
-	SDL_Surface* s = IMG_Load("res/player.png");
-	SDL_Texture* t = SDL_CreateTextureFromSurface(renderer, s);
-	SDL_Rect testRect = {200,200,100,100};
-	SDL_FreeSurface(s);
 	
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
 
-    // -1 for reverse, 0 for brake, 1 for forward
-    thrust_state accelerate = THRUST_BRAKE;
+    thrust_state accelerate = THRUST_NONE;
     turn_state turn = TURN_NONE;
-
+    
+    player_t player;
+    player_init(&player, renderer);
 
 	char running = 1;
 	while(running)
@@ -90,11 +86,11 @@ int main()
 					break;
                 case SDL_SCANCODE_W:
                 case SDL_SCANCODE_UP:
-                    if(accelerate == THRUST_ACCELERATE) accelerate = THRUST_BRAKE;
+                    if(accelerate == THRUST_ACCELERATE) accelerate = THRUST_NONE;
                     break;
                 case SDL_SCANCODE_S:
                 case SDL_SCANCODE_DOWN:
-                    if(accelerate == THRUST_REVERSE) accelerate = THRUST_BRAKE;
+                    if(accelerate == THRUST_REVERSE) accelerate = THRUST_NONE;
                     break;
                 case SDL_SCANCODE_D:
                 case SDL_SCANCODE_RIGHT:
@@ -110,11 +106,13 @@ int main()
 			}
 		}
 
+        player_update(&player, accelerate, turn);
+
 		// clear the back buffer
 		SDL_RenderClear(renderer); 
 
 		// copy texture to back buffer
-		SDL_RenderCopy(renderer, t, NULL, &testRect); 
+        player_draw(&player, renderer);
 
 		// swap front and back buffers
 		SDL_RenderPresent(renderer);
