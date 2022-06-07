@@ -7,6 +7,7 @@
 #include <SDL2/SDL_scancode.h>
 #include <SDL2/SDL_surface.h>
 #include <stdlib.h>
+#include <time.h>
 
 #define SCREENWIDTH 1600
 #define SCREENHEIGHT 900
@@ -46,8 +47,9 @@ int main()
     player_t player;
     player_init(&player, renderer);
 
+    srand(time(NULL));
+    
     SDL_Rect bg_stars[BG_STAR_AMOUNT] = {0};
-
     for(int i=0; i < BG_STAR_AMOUNT; i++)
     {
         bg_stars[i].x = rand() % SCREENWIDTH;
