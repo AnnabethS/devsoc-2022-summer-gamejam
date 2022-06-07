@@ -5,12 +5,17 @@
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_scancode.h>
+#include <SDL2/SDL_surface.h>
+#include <stdlib.h>
 
 #define SCREENWIDTH 1600
 #define SCREENHEIGHT 900
 #define TITLETEXT "gamejam"
 
 #define TICK_INTERVAL 15
+
+#define BG_STAR_AMOUNT 30
+#define BG_STAR_SIZE 2
 
 static u32 next_tick;
 
@@ -40,6 +45,16 @@ int main()
     
     player_t player;
     player_init(&player, renderer);
+
+    SDL_Rect bg_stars[BG_STAR_AMOUNT] = {0};
+
+    for(int i=0; i < BG_STAR_AMOUNT; i++)
+    {
+        bg_stars[i].x = rand() % SCREENWIDTH;
+        bg_stars[i].y = rand() % SCREENHEIGHT;
+        bg_stars[i].w = BG_STAR_SIZE;
+        bg_stars[i].h = BG_STAR_SIZE;
+    }
 
 	char running = 1;
 	while(running)
@@ -108,8 +123,15 @@ int main()
 
         player_update(&player, accelerate, turn);
 
+        SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		// clear the back buffer
 		SDL_RenderClear(renderer); 
+
+        SDL_SetRenderDrawColor(renderer, 255, 255, 255, 255);
+        for(int i=0; i < BG_STAR_AMOUNT; i++)
+        {
+            SDL_RenderFillRect(renderer, bg_stars+i);
+        }
 
 		// copy texture to back buffer
         player_draw(&player, renderer);
