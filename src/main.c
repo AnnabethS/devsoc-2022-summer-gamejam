@@ -2,12 +2,16 @@
 #include "anna-layer.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_scancode.h>
 
 #define SCREENWIDTH 1600
 #define SCREENHEIGHT 900
-#define TITLETEXT "window title"
+#define TITLETEXT "gamejam"
 
 #define TICK_INTERVAL 15
+
+typedef enum {THRUST_ACCELERATE, THRUST_BRAKE, THRUST_REVERSE} thrust_state;
+typedef enum {TURN_LEFT, TURN_RIGHT, TURN_NONE} turn_state;
 
 static u32 next_tick;
 
@@ -36,6 +40,11 @@ int main()
 	SDL_RenderClear(renderer);
 	SDL_RenderPresent(renderer);
 
+    // -1 for reverse, 0 for brake, 1 for forward
+    thrust_state accelerate = THRUST_BRAKE;
+    turn_state turn = TURN_NONE;
+
+
 	char running = 1;
 	while(running)
 	{
@@ -53,10 +62,51 @@ int main()
 				case SDL_SCANCODE_ESCAPE:
 					running = 0;
 					break;
+                case SDL_SCANCODE_W:
+                case SDL_SCANCODE_UP:
+                    accelerate = THRUST_ACCELERATE;
+                    break;
+                case SDL_SCANCODE_S:
+                case SDL_SCANCODE_DOWN:
+                    accelerate = THRUST_REVERSE;
+                    break;
+                case SDL_SCANCODE_D:
+                case SDL_SCANCODE_RIGHT:
+                    turn = TURN_RIGHT;
+                    break;
+                case SDL_SCANCODE_A:
+                case SDL_SCANCODE_LEFT:
+                    turn = TURN_LEFT;
+                    break;
 				default:
 					break;
 				}
-
+                break;
+            case SDL_KEYUP:
+                switch(event.key.keysym.scancode)
+                {
+				case SDL_SCANCODE_ESCAPE:
+					running = 0;
+					break;
+                case SDL_SCANCODE_W:
+                case SDL_SCANCODE_UP:
+                    if(accelerate == THRUST_ACCELERATE) accelerate = THRUST_BRAKE;
+                    break;
+                case SDL_SCANCODE_S:
+                case SDL_SCANCODE_DOWN:
+                    if(accelerate == THRUST_REVERSE) accelerate = THRUST_BRAKE;
+                    break;
+                case SDL_SCANCODE_D:
+                case SDL_SCANCODE_RIGHT:
+                    if(turn == TURN_RIGHT) turn = TURN_NONE;
+                    break;
+                case SDL_SCANCODE_A:
+                case SDL_SCANCODE_LEFT:
+                    if(turn == TURN_LEFT) turn = TURN_NONE;
+                    break;
+				default:
+					break;
+                }
 			}
 		}
 
