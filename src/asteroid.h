@@ -16,8 +16,6 @@ typedef struct asteroid_t{
     SDL_Rect render_rect;
     float collision_radius;
     char on_screen;
-    struct asteroid_t* next;
-    struct asteroid_t* prev;
 }asteroid;
 
 void asteroid_load_textures(SDL_Renderer* r);

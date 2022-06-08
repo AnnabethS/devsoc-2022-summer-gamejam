@@ -68,6 +68,7 @@ local asteroid* asteroid_init()
     a->rotation = rand() % 360;
 
     a->is_pickup = rand() % 2;
+    a->weight = (rand() % 2) + 1;
 
     if(a->is_pickup)
         a->texture = pickup_textures[rand() % PICKUP_TEXTURES_COUNT];
@@ -118,6 +119,17 @@ local void asteroid_update(asteroid* a, player_t* p)
 
     if(vec2fDist(&a->position, &p->position) <= big_rad)
     {
+        if(a->is_pickup)
+        {
+            if(p->weight + a->weight <= p->max_weight)
+            {
+                p->weight += a->weight;
+            }
+        }
+        else
+        {
+            p->health--;
+        }
         asteroid_remove(a);
     }
 
