@@ -25,6 +25,7 @@ void player_init(player_t* p, SDL_Renderer* r)
     SDL_FreeSurface(s);
     p->render_rect.w = 64;
     p->render_rect.h = 64;
+    p->collision_radius = 32;
 
     p->position.x = 100;
     p->position.y = 100;
@@ -38,9 +39,10 @@ void player_init(player_t* p, SDL_Renderer* r)
 
 void player_update(player_t* p, thrust_state thrust, turn_state turn)
 {
-    p->render_rect.w = 64;
-    p->render_rect.h = 64;
-    // turn
+    /* p->render_rect.w = 64; */
+    /* p->render_rect.h = 64; */
+    /* p->collision_radius = 48; */
+    /* // turn */
 
     float turn_amount = weight_scale_factor(p) * p->max_turn_speed;
     

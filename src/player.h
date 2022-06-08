@@ -19,6 +19,7 @@ typedef struct{
     float max_weight;
     SDL_Texture* texture;
     SDL_Rect render_rect;
+    float collision_radius;
 }player_t;
 
 void player_init(player_t *p, SDL_Renderer *r);

@@ -3,6 +3,7 @@
 
 #include <SDL2/SDL_image.h>
 #include "vector.h"
+#include "player.h"
 
 typedef struct asteroid_t{
     char is_pickup;
@@ -21,8 +22,8 @@ typedef struct asteroid_t{
 
 void asteroid_load_textures(SDL_Renderer* r);
 void asteroid_add();
-void asteroid_remove();
-void asteroid_all_update();
+void asteroid_remove(asteroid* a);
+void asteroid_all_update(player_t* p);
 void asteroid_all_draw(SDL_Renderer* r);
 void asteroid_all_free();
 

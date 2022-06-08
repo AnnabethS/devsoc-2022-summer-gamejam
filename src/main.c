@@ -60,10 +60,6 @@ int main()
         bg_stars[i].h = BG_STAR_SIZE;
     }
 
-    asteroid_add();
-    asteroid_add();
-    asteroid_add();
-
 	char running = 1;
 	while(running)
 	{
@@ -130,7 +126,7 @@ int main()
 		}
 
         player_update(&player, accelerate, turn);
-        asteroid_all_update();
+        asteroid_all_update(&player);
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		// clear the back buffer

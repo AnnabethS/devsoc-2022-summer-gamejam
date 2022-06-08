@@ -5,6 +5,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "gfx.h"
+#include "player.h"
 #include "vector.h"
 
 #define STARTING_OFFSET 50
@@ -73,16 +74,16 @@ local asteroid* asteroid_init()
     else
         a->texture = rock_textures[rand() % ROCK_TEXTURES_COUNT];
 
-    a->collision_radius = 16;
-    a->render_rect.w = a->collision_radius * 2;
-    a->render_rect.h = a->collision_radius * 2;
+    a->collision_radius = 24;
+    a->render_rect.w = a->collision_radius * 1.5;
+    a->render_rect.h = a->collision_radius * 1.5;
 
     a->on_screen = 1;
     
     return a;
 }
 
-local void asteroid_update(asteroid* a)
+local void asteroid_update(asteroid* a, player_t* p)
 {
     vec2fAdd(&a->position, &a->position, &a->velocity);
     a->rotation += a->rotational_velocity;
@@ -110,6 +111,16 @@ local void asteroid_update(asteroid* a)
             a->on_screen = 1;
         }
     }
+
+    float big_rad = p->collision_radius;
+    if(a->collision_radius > big_rad)
+        big_rad = a->collision_radius;
+
+    if(vec2fDist(&a->position, &p->position) <= big_rad)
+    {
+        asteroid_remove(a);
+    }
+
 }
 
 local void asteroid_draw(SDL_Renderer* r, asteroid* a)
@@ -170,7 +181,7 @@ void asteroid_remove(asteroid* a)
     count--;
 }
 
-void asteroid_all_update()
+void asteroid_all_update(player_t* p)
 { 
     persist long last_spawn = 0;
     if(count < MAX_ASTEROIDS)
@@ -185,7 +196,7 @@ void asteroid_all_update()
     {
         if(asteroids[i] != NULL)
         {
-            asteroid_update(asteroids[i]);
+            asteroid_update(asteroids[i], p);
         }
     }
 }
