@@ -1,6 +1,8 @@
+#include "asteroid.h"
 #include "sdl_util.h"
 #include "anna-layer.h"
 #include "player.h"
+#include "gfx.h"
 #include <SDL2/SDL.h>
 #include <SDL2/SDL_image.h>
 #include <SDL2/SDL_render.h>
@@ -9,8 +11,6 @@
 #include <stdlib.h>
 #include <time.h>
 
-#define SCREENWIDTH 1600
-#define SCREENHEIGHT 900
 #define TITLETEXT "gamejam"
 
 #define TICK_INTERVAL 15
@@ -47,6 +47,8 @@ int main()
     player_t player;
     player_init(&player, renderer);
 
+    asteroid_load_textures(renderer);
+
     srand(time(NULL));
     
     SDL_Rect bg_stars[BG_STAR_AMOUNT] = {0};
@@ -57,6 +59,10 @@ int main()
         bg_stars[i].w = BG_STAR_SIZE;
         bg_stars[i].h = BG_STAR_SIZE;
     }
+
+    asteroid_add();
+    asteroid_add();
+    asteroid_add();
 
 	char running = 1;
 	while(running)
@@ -124,6 +130,7 @@ int main()
 		}
 
         player_update(&player, accelerate, turn);
+        asteroid_all_update();
 
         SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
 		// clear the back buffer
@@ -134,6 +141,8 @@ int main()
         {
             SDL_RenderFillRect(renderer, bg_stars+i);
         }
+
+        asteroid_all_draw(renderer);
 
 		// copy texture to back buffer
         player_draw(&player, renderer);

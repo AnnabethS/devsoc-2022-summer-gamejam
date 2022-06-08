@@ -1,7 +1,16 @@
 #include "player.h"
 #include "vector.h"
+#include "sdl_util.h"
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
+
+local float weight_scale_factor(player_t* p)
+{
+    float scale = ((-1 * (p->weight / p->max_weight)) + 1);
+    if (scale < 0.1)
+        scale = 0.1;
+    return scale;
+}
 
 void player_init(player_t* p, SDL_Renderer* r)
 {
@@ -14,28 +23,33 @@ void player_init(player_t* p, SDL_Renderer* r)
     }
     p->texture = SDL_CreateTextureFromSurface(r, s);
     SDL_FreeSurface(s);
-    //SDL_QueryTexture(p->texture, NULL, NULL, &p->render_rect.w, &p->render_rect.h);
     p->render_rect.w = 64;
     p->render_rect.h = 64;
 
     p->position.x = 100;
     p->position.y = 100;
+
+    p->max_acceleration = 0.5;
+    p->max_speed = 6;
+    p->max_turn_speed = 5;
+    p->max_weight = 10;
+    p->weight = 0;
 }
 
 void player_update(player_t* p, thrust_state thrust, turn_state turn)
 {
+    p->render_rect.w = 64;
+    p->render_rect.h = 64;
     // turn
-    // TODO: make this not use a constant
 
-    float turn_amount;
+    float turn_amount = weight_scale_factor(p) * p->max_turn_speed;
     
     switch(turn)
     {
     case TURN_LEFT:
-        turn_amount = -5;
+        turn_amount *= -1;
         break;
     case TURN_RIGHT:
-        turn_amount = 5;
         break;
     case TURN_NONE:
         turn_amount = 0;
@@ -44,35 +58,37 @@ void player_update(player_t* p, thrust_state thrust, turn_state turn)
     p->rotation += turn_amount;
     
     // accelerate
+    float acceleration_scale = weight_scale_factor(p) * p->max_acceleration;
     vec2f change_vel;
     change_vel.x = 0;
     change_vel.y = 0;
     switch (thrust) {
     case THRUST_ACCELERATE:
         vec2fNormalisedVectorFromAngleDegrees(&change_vel, p->rotation);
-        vec2fScalarProduct(&change_vel, &change_vel, 0.5);
+        vec2fScalarProduct(&change_vel, &change_vel, acceleration_scale);
         break;
     case THRUST_REVERSE:
         vec2fNormalisedVectorFromAngleDegrees(&change_vel, p->rotation+180);
-        vec2fScalarProduct(&change_vel, &change_vel, 0.5);
+        vec2fScalarProduct(&change_vel, &change_vel, acceleration_scale);
         break;
     case THRUST_NONE:
-        if(vec2fMagnitude(&p->velocity) > 0.5)
+        if(vec2fMagnitude(&p->velocity) > acceleration_scale)
         {
             vec2fNormalise(&change_vel, &p->velocity);
-            vec2fScalarProduct(&change_vel, &change_vel, -0.5);
+            vec2fScalarProduct(&change_vel, &change_vel, -acceleration_scale);
         }
         else if (vec2fMagnitude(&p->velocity) > 0)
         {
             p->velocity.x = 0;
             p->velocity.y = 0;
         }
-        break;
     }
 
     vec2fAdd(&p->velocity, &p->velocity, &change_vel);
-    vec2fClampMagnitude(&p->velocity, &p->velocity, 6);
 
+    float scaled_max_speed = weight_scale_factor(p) * p->max_speed;
+
+    vec2fClampMagnitude(&p->velocity, &p->velocity, scaled_max_speed);
     // do move
 
     vec2fAdd(&p->position, &p->position, &p->velocity);

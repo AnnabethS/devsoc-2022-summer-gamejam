@@ -18,4 +18,6 @@ int basicSetup(int windowWidth, int windowHeight, Uint32 flags,
  */
 int safeQuit(SDL_Window* window, SDL_Renderer* renderer);
 
+void sdlrect_print(SDL_Rect* r);
+
 #endif

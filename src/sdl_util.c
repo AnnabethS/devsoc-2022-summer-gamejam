@@ -51,3 +51,8 @@ int safeQuit(SDL_Window* window, SDL_Renderer* renderer)
 	SDL_Quit();
 	return 0;
 }
+
+void sdlrect_print(SDL_Rect* r)
+{
+    printf("x: %d, y: %d, w: %d, h: %d\n", r->x, r->y, r->w, r->h);
+}
