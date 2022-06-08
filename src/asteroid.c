@@ -4,6 +4,7 @@
 #include <SDL2/SDL_surface.h>
 #include <stdlib.h>
 #include <time.h>
+#include "gamescreen.h"
 #include "gfx.h"
 #include "player.h"
 #include "vector.h"
@@ -124,6 +125,7 @@ local void asteroid_update(asteroid* a, player_t* p)
             if(p->weight + a->weight <= p->max_weight)
             {
                 p->weight += a->weight;
+                game_change_weight(p->weight);
             }
         }
         else

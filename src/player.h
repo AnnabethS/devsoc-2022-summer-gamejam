@@ -28,4 +28,6 @@ void player_init(player_t *p, SDL_Renderer *r);
 void player_update(player_t* p, thrust_state thrust, turn_state turn);
 void player_draw(player_t* p, SDL_Renderer* r);
 
+extern uint score;
+
 #endif
