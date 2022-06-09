@@ -1,4 +1,5 @@
 #include "player.h"
+#include "gfx.h"
 #include "vector.h"
 #include "gamescreen.h"
 #include "sdl_util.h"
@@ -90,6 +91,8 @@ void player_update(player_t* p, thrust_state thrust, turn_state turn)
     // do move
 
     vec2fAdd(&p->position, &p->position, &p->velocity);
+
+    vec2fClampToRect(&p->position, &p->position, 0, 0, SCREENWIDTH, SCREENHEIGHT);
 
     // recalculate render position
     p->render_rect.x = ((int)p->position.x) - (p->render_rect.w/2);

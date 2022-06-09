@@ -65,7 +65,7 @@ local asteroid* asteroid_init()
     vec2fDiff(&a->velocity, &a->position, &target_pos);
     vec2fClampMagnitude(&a->velocity, &a->velocity, 1 + (rand() % 10));
 
-    a->rotational_velocity = (rand() % 6) + 1;
+    a->rotational_velocity = (rand() % 12) - 6;
     a->rotation = rand() % 360;
 
     a->is_pickup = rand() % 2;
@@ -76,9 +76,11 @@ local asteroid* asteroid_init()
     else
         a->texture = rock_textures[rand() % ROCK_TEXTURES_COUNT];
 
-    a->collision_radius = 24;
-    a->render_rect.w = a->collision_radius * 1.5;
-    a->render_rect.h = a->collision_radius * 1.5;
+    float scale = a->weight==2 ? 1.5 : 1;
+
+    a->collision_radius = 24 * scale;
+    a->render_rect.w = a->collision_radius * 1.5 * scale;
+    a->render_rect.h = a->collision_radius * 1.5 * scale;
 
     a->on_screen = 1;
     

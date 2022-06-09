@@ -32,6 +32,9 @@ static void vec2fDiff(vec2f* dest, vec2f* fromVector, vec2f* toVector);
 /* adds `src1` and `src2`, stores the result in dest. */
 static void vec2fAdd(vec2f* dest, vec2f* src1, vec2f* src2);
 
+/* clamps `src` to the rect specified by `edge` params and stores the result in `dest` */
+static void vec2fClampToRect(vec2f* dest, vec2f* src, float x, float y, float w, float h);
+
 /* scales `src` by `scalar` and puts the result in `dest` */
 static void vec2fScalarProduct(vec2f* dest, vec2f* src, float scalar);
 
@@ -77,6 +80,35 @@ static void vec2fAdd(vec2f* dest, vec2f* src1, vec2f* src2)
 {
 	dest->x = src1->x + src2->x;
 	dest->y = src1->y + src2->y;
+}
+
+static void vec2fClampToRect(vec2f* dest, vec2f* src, float x, float y, float w, float h)
+{ // TODO: rewrite with a rect2f struct
+    if(src->x >= x && src->x <= x+w)
+    {
+        dest->x = src->x;
+    }
+    else if (src->x < x)
+    {
+        dest->x = x;
+    }
+    else
+    {
+        dest->x = x+w;
+    }
+
+    if(src->y >= y && src->y <= y+h)
+    {
+        dest->y = src->y;
+    }
+    else if(src->y < y)
+    {
+        dest->y = y;
+    }
+    else
+    {
+        dest->y = y+h;
+    }
 }
 
 static void vec2fScalarProduct(vec2f* dest, vec2f* src, float scalar)
