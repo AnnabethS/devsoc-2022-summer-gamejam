@@ -37,6 +37,9 @@ void player_init(player_t* p, SDL_Renderer* r)
     p->max_turn_speed = 5;
     p->max_weight = 10;
     p->weight = 0;
+
+    p->max_health = 5;
+    p->health = p->max_health;
 }
 
 void player_update(player_t* p, thrust_state thrust, turn_state turn)
@@ -103,4 +106,12 @@ void player_draw(player_t* p, SDL_Renderer* r)
 {
     SDL_RenderCopyEx(r, p->texture, NULL, &p->render_rect, p->rotation+90,
                      NULL, SDL_FLIP_NONE);
+    #ifdef DEBUG_COLLISIONS
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+    SDL_Rect test = {p->position.x - p->collision_radius,
+        p->position.y - p->collision_radius,
+        p->collision_radius*2,
+        p->collision_radius*2};
+    SDL_RenderDrawRect(r, &test);
+    #endif
 }

@@ -20,8 +20,8 @@ typedef struct{
     SDL_Texture* texture;
     SDL_Rect render_rect;
     float collision_radius;
-    uint max_health;
-    uint health;
+    int max_health;
+    int health;
 }player_t;
 
 void player_init(player_t *p, SDL_Renderer *r);

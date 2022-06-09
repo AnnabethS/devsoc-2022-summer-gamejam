@@ -13,26 +13,41 @@
 #include <stdlib.h>
 #include <time.h>
 #include <SDL2/SDL_ttf.h>
+#include <SDL2/SDL_mixer.h>
 
 #define BG_STAR_AMOUNT 30
 #define BG_STAR_SIZE 2
 
-player_t player;
-thrust_state accelerate = THRUST_NONE;
-turn_state turn = TURN_NONE;
-SDL_Rect bg_stars[BG_STAR_AMOUNT] = {0};
-SDL_Texture* score_text_texture;
-SDL_Rect score_text_rect = {0};
-SDL_Texture* weight_text_texture;
-SDL_Rect weight_text_rect = {0};
+static player_t player;
+static thrust_state accelerate = THRUST_NONE;
+static turn_state turn = TURN_NONE;
+static SDL_Rect bg_stars[BG_STAR_AMOUNT] = {0};
+static SDL_Texture* score_text_texture;
+static SDL_Rect score_text_rect = {0};
+static SDL_Texture* weight_text_texture;
+static SDL_Rect weight_text_rect = {0};
+static SDL_Texture* hp_text_texture;
+static SDL_Rect hp_text_rect = {0};
+static SDL_Renderer* r;
+
+Mix_Chunk* snd_explode;
+Mix_Chunk* snd_oof;
+Mix_Chunk* snd_pickup;
+Mix_Chunk* snd_dropoff;
+
 uint score = 0;
-SDL_Renderer* r;
 
 void game_start(SDL_Renderer* renderer)
 {
     r = renderer;
     accelerate = THRUST_NONE;
     turn = TURN_NONE;
+
+    Mix_OpenAudio(22050, MIX_DEFAULT_FORMAT, 1, 1024);
+    snd_explode = Mix_LoadWAV("res/explosion.wav");
+    snd_oof = Mix_LoadWAV("res/oof.wav");
+    snd_pickup = Mix_LoadWAV("res/pickup.wav");
+    snd_dropoff = Mix_LoadWAV("res/deliver.wav");
     
     player_init(&player, r);
 
@@ -51,6 +66,7 @@ void game_start(SDL_Renderer* renderer)
     }
     game_add_score(0);
     game_change_weight(0);
+    game_update_health_text();
 }
 
 char game_update(void)
@@ -120,7 +136,11 @@ char game_update(void)
     player_update(&player, accelerate, turn);
     asteroid_all_update(&player);
     scrapyards_update(&player);
-    return 1;
+
+    if(player.health <= 0)
+        return 0;
+    else
+        return 1;
 }
 
 void game_draw(void)
@@ -144,6 +164,7 @@ void game_draw(void)
 
     SDL_RenderCopy(r, score_text_texture, NULL, &score_text_rect);
     SDL_RenderCopy(r, weight_text_texture, NULL, &weight_text_rect);
+    SDL_RenderCopy(r, hp_text_texture, NULL, &hp_text_rect);
 
     // swap front and back buffers
     SDL_RenderPresent(r);
@@ -176,4 +197,18 @@ void game_change_weight(uint x)
                      &weight_text_rect.w, &weight_text_rect.h);
     weight_text_rect.y = weight_text_rect.h * 2;
     weight_text_rect.x = (SCREENWIDTH / 2) - (weight_text_rect.w / 2);
+}
+
+void game_update_health_text(void)
+{
+    char newstr[30] = {0};
+    sprintf(newstr, "Hull Integrity: %d/%d", player.health, player.max_health);
+    SDL_Surface* s = TTF_RenderText_Solid(main_font, newstr, colour_white);
+    hp_text_texture = SDL_CreateTextureFromSurface(r, s);
+    SDL_FreeSurface(s);
+
+    SDL_QueryTexture(hp_text_texture, NULL, NULL,
+                     &hp_text_rect.w, &hp_text_rect.h);
+    hp_text_rect.y = hp_text_rect.h * 3;
+    hp_text_rect.x = (SCREENWIDTH / 2) - (hp_text_rect.w / 2);
 }

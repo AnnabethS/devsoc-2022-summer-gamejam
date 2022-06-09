@@ -3,6 +3,7 @@
 #include "gfx.h"
 #include "player.h"
 #include <SDL2/SDL_image.h>
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <stdio.h>
@@ -27,11 +28,13 @@ local void check_player(struct scrapyard_t* s, player_t* p)
     if(p->position.x > s->rect.x &&
         p->position.x < s->rect.x + s->rect.w &&
         p->position.y > s->rect.y &&
-        p->position.y < s->rect.y + s->rect.h)
+        p->position.y < s->rect.y + s->rect.h &&
+        p->weight != 0)
     {
         game_add_score(p->weight);
         p->weight = 0;
         game_change_weight(0);
+        Mix_PlayChannel(-1, snd_dropoff, 0);
     }
 }
 

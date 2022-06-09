@@ -1,5 +1,6 @@
 #include "asteroid.h"
 #include "anna-layer.h"
+#include <SDL2/SDL_mixer.h>
 #include <SDL2/SDL_render.h>
 #include <SDL2/SDL_surface.h>
 #include <stdlib.h>
@@ -76,11 +77,18 @@ local asteroid* asteroid_init()
     else
         a->texture = rock_textures[rand() % ROCK_TEXTURES_COUNT];
 
-    float scale = a->weight==2 ? 1.5 : 1;
-
-    a->collision_radius = 24 * scale;
-    a->render_rect.w = a->collision_radius * 1.5 * scale;
-    a->render_rect.h = a->collision_radius * 1.5 * scale;
+    if(a->weight == 1)
+    {
+        a->collision_radius = 24;
+        a->render_rect.w = 48;
+        a->render_rect.h = 48;
+    }
+    else
+    {
+        a->collision_radius = 32;
+        a->render_rect.w = 64;
+        a->render_rect.h = 64;
+    }
 
     a->on_screen = 1;
     
@@ -128,13 +136,34 @@ local void asteroid_update(asteroid* a, player_t* p)
             {
                 p->weight += a->weight;
                 game_change_weight(p->weight);
+                Mix_PlayChannel(-1, snd_pickup, 0);
             }
         }
         else
         {
             p->health--;
+            game_update_health_text();
+            Mix_PlayChannel(-1, snd_oof, 0);
         }
         asteroid_remove(a);
+    }
+
+    for(int i=0; i < MAX_ASTEROIDS; i++)
+    {
+        if(asteroids[i] != NULL && asteroids[i] != a)
+        {
+            float big_rad = asteroids[i]->collision_radius;
+            if(a->collision_radius > big_rad)
+                big_rad = a->collision_radius;
+
+            if(vec2fDist(&asteroids[i]->position, &a->position) <= big_rad)
+            {
+                Mix_PlayChannel(-1, snd_explode, 0);
+                asteroid_remove(a);
+                asteroid_remove(asteroids[i]);
+                break;
+            }
+        }
     }
 
 }
@@ -143,6 +172,14 @@ local void asteroid_draw(SDL_Renderer* r, asteroid* a)
 {
     SDL_RenderCopyEx(r, a->texture, NULL, &a->render_rect, a->rotation,
                      NULL, SDL_FLIP_NONE);
+    #ifdef DEBUG_COLLISIONS
+    SDL_SetRenderDrawColor(r, 255, 255, 255, 255);
+    SDL_Rect test = {a->position.x - a->collision_radius,
+        a->position.y - a->collision_radius,
+        a->collision_radius*2,
+        a->collision_radius*2};
+    SDL_RenderDrawRect(r, &test);
+    #endif
 }
 
 void asteroid_load_textures(SDL_Renderer* r)
