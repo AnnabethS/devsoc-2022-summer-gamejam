@@ -138,6 +138,12 @@ local void asteroid_update(asteroid* a, player_t* p)
                 game_change_weight(p->weight);
                 Mix_PlayChannel(-1, snd_pickup, 0);
             }
+            else
+            {
+                p->health--;
+                game_update_health_text();
+                Mix_PlayChannel(-1, snd_oof, 0);
+            }
         }
         else
         {
