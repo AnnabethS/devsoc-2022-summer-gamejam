@@ -14,6 +14,7 @@
 #include <time.h>
 #include <SDL2/SDL_ttf.h>
 #include <SDL2/SDL_mixer.h>
+#include "bullet.h"
 
 #define BG_STAR_AMOUNT 30
 #define BG_STAR_SIZE 2
@@ -101,6 +102,8 @@ char game_update(void)
             case SDL_SCANCODE_LEFT:
                 turn = TURN_LEFT;
                 break;
+            /* case SDL_SCANCODE_SPACE: */
+            /*     bullet_init(&player.position, player.rotation); */
             default:
                 break;
             }
@@ -136,6 +139,7 @@ char game_update(void)
     player_update(&player, accelerate, turn);
     asteroid_all_update(&player);
     scrapyards_update(&player);
+    /* bullet_update(); */
 
     if(player.health <= 0)
         return 0;
@@ -158,6 +162,10 @@ void game_draw(void)
     asteroid_all_draw(r);
 
     scrapyards_draw(r);
+
+    /* SDL_SetRenderDrawColor(r, 255, 255, 255, 255); */
+    /* bullet_draw(r); */
+    /* SDL_SetRenderDrawColor(r, 0, 0, 0, 255); */
 
     // copy texture to back buffer
     player_draw(&player, r);
