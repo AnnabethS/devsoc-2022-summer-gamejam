@@ -1,0 +1,75 @@
+name: C CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - run: sudo apt-get install libsdl2-dev libsdl2-image-dev libsdl2-ttf-dev libsdl2-gfx-dev libsdl2-mixer-dev
+    - uses: actions/checkout@v3
+    - name: make
+      run: make
+    - name: Zip Release
+      uses: TheDoctor0/zip-release@0.6.2
+      with:
+        type: 'zip'
+        filename: 'release-linux.zip'
+        path: res/ game
+    - uses: "marvinpinto/action-automatic-releases@latest"
+      with:
+        repo_token: "${{ secrets.GITHUB_TOKEN }}"
+        automatic_release_tag: "latest-linux"
+        prerelease: false
+        title: "Latest Linux Build"
+        files: |
+          release-linux.zip
+  build-windows:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: msys2 {0}
+    steps:
+      - name: checkout repo
+        uses: actions/checkout@v3
+      
+      - name: setup msys2
+        uses: msys2/setup-msys2@v2
+        with:
+         update: true
+         install: >-
+            base-devel
+            git
+            make
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-harfbuzz
+            mingw-w64-x86_64-SDL2
+            mingw-w64-x86_64-SDL2_ttf
+            mingw-w64-x86_64-SDL2_gfx
+            mingw-w64-x86_64-SDL2_image
+            mingw-w64-x86_64-SDL2_mixer
+
+      - name: build project
+        run: make -f Makefile_win
+
+      - name: move libs to current directory for packing
+        run: mv libs/* .
+        
+      - name: zip and upload game
+        uses: TheDoctor0/zip-release@0.6.2
+        with:
+          type: 'zip'
+          filename: 'release-windows.zip'
+          path: res/ *.dll game.exe
+      - uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "latest-windows"
+          prerelease: false
+          title: "Latest Windows Build"
+          files: |
+            release-windows.zip 
